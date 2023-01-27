@@ -9,17 +9,13 @@ public class PlatformScript : MonoBehaviour
 	public float distance;
 
 
-	public float platformSize;
+	public float platformWidth;
+	public float platformHeight;
 
 	float cameraSize;
 	float cameraRatio;
 
 	public PlatformVisual visual;
-
-	void Start()
-	{
-
-	}
 
 	// Update is called once per frame
 	void Update()
@@ -35,7 +31,7 @@ public class PlatformScript : MonoBehaviour
 
 		//-----------------------------------------------------------
 
-		visual.SetSize(platformSize);
+		visual.SetSize(platformWidth);
 
 		bool isLeftKeyPressed = Input.GetKey(KeyCode.LeftArrow);
 		bool isRightKeyPressed = Input.GetKey(KeyCode.RightArrow);
@@ -43,9 +39,9 @@ public class PlatformScript : MonoBehaviour
 		distance += isLeftKeyPressed ? -speed * Time.deltaTime : 0.0f;
 		distance += isRightKeyPressed ? speed * Time.deltaTime : 0.0f;
 
-		distance = Mathf.Clamp(distance, GameData.LeftBound + platformSize * 0.5f, GameData.RightBound - platformSize * 0.5f);
+		distance = Mathf.Clamp(distance, GameData.LeftBound + platformWidth * 0.5f, GameData.RightBound - platformWidth * 0.5f);
 
-		transform.position = new Vector3(distance, 0.0f, 0.0f);
+		transform.position = new Vector3(distance, platformHeight * 0.5f, 0.0f);
 
 	}
 }

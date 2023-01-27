@@ -1,81 +1,101 @@
 using System.Collections;
 using System.Collections.Generic;
+using UnityEditor.Rendering;
 using UnityEngine;
 
 public class BallScript : MonoBehaviour
 {
-    // Start is called before the first frame update
+	// Start is called before the first frame update
 
-    //Step 1 : Movement
+	//Step 1 : Movement
 
-    //Step 2 : Bounce
+	//Step 2 : Bounce
 
-    //Step 3 : Death on ground
+	//Step 3 : Death on ground
 
-    //Step 4 : Destroy Bricks
+	//Step 4 : Destroy Bricks
 
-    public float speed;
+	public float speed;
 
-    
-    public Vector2 direction;
 
-    public Vector2 position;
+	public Vector2 direction;
 
-    public Rigidbody2D rigidbody2D;
+	public Vector2 position;
 
-    void Start()
-    {
-      //  direction = Random.insideUnitCircle.normalized;
-        position = transform.position;
+	public float radius;
 
-    }
+	public bool isAlive;
 
-    // Update is called once per frame
-    void Update()
-    {
-        position += direction * speed * Time.deltaTime;
 
-        if (position.x < GameData.LeftBound) 
-        {
-            Debug.Log("Left Bound");
-            direction = Vector2.Reflect(direction, Vector2.right);
+	public PlatformScript platform;
+
+	void Start()
+	{
+		position = transform.position;
+	}
+
+	// Update is called once per frame
+	void Update()
+	{
+		transform.localScale = Vector3.one * radius * 2.0f;
+
+		if (isAlive)
+			position += direction * speed * Time.deltaTime;
+
+		isAlive = position.y - radius > 0.0f;
+
+		bool collidedWithPlatofrm = CollidedWithPlatform(position);
+
+		if (collidedWithPlatofrm) 
+		{
+			Debug.Log("collidedWithPlatofrm");
+
+			position.y = platform.transform.position.y + platform.platformHeight * 0.5f + radius;
+			direction = Vector2.Reflect(direction, Vector2.up);
 		}
 
-		else if (position.x > GameData.RightBound)
+		if (!isAlive)
 		{
-			Debug.Log("Left Right");
+			Debug.Log("DEAD");
+		}
 
+		if (position.x < GameData.LeftBound + radius)
+		{
+			position.x = GameData.LeftBound + radius;
+			direction = Vector2.Reflect(direction, Vector2.right);
+		}
+
+		else if (position.x > GameData.RightBound - radius)
+		{
+			position.x = GameData.RightBound - radius;
 			direction = Vector2.Reflect(direction, Vector2.left);
 		}
 
-		else if (position.y > GameData.TopBound)
+		else if (position.y > GameData.TopBound - radius)
 		{
-
-			Debug.Log("Top Bound");
-
+			position.y = GameData.TopBound - radius;
 			direction = Vector2.Reflect(direction, Vector2.down);
 		}
 
-		else if (position.y < GameData.BottomBound)
+		else if (position.y < GameData.BottomBound + radius)
 		{
-
-			Debug.Log("Top Bound");
-
+			position.y = GameData.BottomBound + radius;
 			direction = Vector2.Reflect(direction, Vector2.up);
 		}
 
 		transform.position = position;
-    }
-
-	private void OnCollisionEnter2D(Collision2D collision)
-	{
-        Debug.Log("COllision happened! with " + collision.collider.name);
 	}
 
-
-	private void OnTriggerEnter2D(Collider2D collision)
+	bool CollidedWithPlatform(Vector3 position) 
 	{
-        Debug.Log("Trigger happened! with ");
+		Vector3 platformPosition = platform.transform.position;
 
+		float halfWidth = platform.platformWidth * 0.5f;
+		float halfHeight = platform.platformHeight * 0.5f;
+
+		bool horizontalCheck	= position.x + radius > platformPosition.x - halfWidth  && position.x - radius < platformPosition.x + halfWidth;
+		bool verticalCheck		= position.y + radius > platformPosition.y - halfHeight && position.y - radius < platformPosition.y + halfHeight;
+
+		return horizontalCheck && verticalCheck;
 	}
 }
